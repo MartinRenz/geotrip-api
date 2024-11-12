@@ -1,0 +1,12 @@
+# Dependências do Node.js
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Dados do sistema operacional
+.DS_Store
+
+# Outras pastas específicas do ambiente
+.env
