@@ -83,10 +83,19 @@ router.post('/getbycoordinates', async (req, res) => {
 
   try {
     const [points] = await db.query(
-      `SELECT * FROM points WHERE 
-        latitude BETWEEN ? AND ? AND 
-        longitude BETWEEN ? AND ?
-      LIMIT 10`,
+      `SELECT 
+        points.*, 
+        users.email 
+       FROM 
+        points
+       INNER JOIN 
+        users 
+       ON 
+        points.user_id = users.id
+       WHERE 
+        latitude BETWEEN ? AND ? 
+        AND longitude BETWEEN ? AND ?
+       LIMIT 10;`,
       [
         southWest.latitude, northEast.latitude,
         southWest.longitude, northEast.longitude
@@ -101,13 +110,19 @@ router.post('/getbycoordinates', async (req, res) => {
 
 // Create point of interest endpoint.
 router.post('/', async (req, res) => {
-  const { name, latitude, longitude, user_id } = req.body;
+  const { name, description, latitude, longitude, user_id } = req.body;
 
   try {
     // Validate if name is valid.
     if (!name || typeof name !== 'string' || name.trim() === '') 
     {
       return res.status(400).json({ message: 'Name is required.' });
+    }
+
+        // Validate if name is valid.
+    if (!description || typeof description !== 'string' || description.trim() === '') 
+    {
+      return res.status(400).json({ message: 'Description is required.' });
     }
 
     // Validate if latitude is valid
@@ -147,8 +162,8 @@ router.post('/', async (req, res) => {
     }
 
     const [result] = await db.query(
-      'INSERT INTO points (name, latitude, longitude, user_id) VALUES (?, ?, ?, ?)',
-      [name, latitude, longitude, user_id]
+      'INSERT INTO points (name, description, latitude, longitude, user_id) VALUES (?, ?, ?, ?, ?)',
+      [name, description, latitude, longitude, user_id]
     );
     
     res.json({ message: 'Point of interest created successfully.', point_id: result.point_id });
