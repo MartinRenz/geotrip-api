@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../config/db');
+const db = require('../config/db');  // Aqui você já tem o DB configurado com o Pool do PostgreSQL
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
@@ -9,19 +9,17 @@ router.post('/login', async (req, res) => {
 
   try {
     // Validate if email is valid.
-    if (!email || typeof email !== 'string' || email.trim() === '') 
-    {
+    if (!email || typeof email !== 'string' || email.trim() === '') {
       return res.status(400).json({ error: 'Email is required.' });
     }
 
     // Validate if password is valid.
-    if (!password || typeof password !== 'string' || password.trim() === '') 
-    {
+    if (!password || typeof password !== 'string' || password.trim() === '') {
       return res.status(400).json({ error: 'Password is required.' });
     }
 
     // Searching user by the email.
-    const [rows] = await db.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
+    const { rows } = await db.query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email]);
 
     // Returns error if user is not found.
     if (rows.length === 0) {
@@ -49,26 +47,23 @@ router.post('/create', async (req, res) => {
 
   try {
     // Validate if username is valid.
-    if (!username || typeof username !== 'string' || username.trim() === '') 
-    {
+    if (!username || typeof username !== 'string' || username.trim() === '') {
       return res.status(400).json({ error: 'Username is required.' });
     }
 
     // Validate if email is valid.
-    if (!email || typeof email !== 'string' || email.trim() === '') 
-    {
+    if (!email || typeof email !== 'string' || email.trim() === '') {
       return res.status(400).json({ error: 'Email is required.' });
     }
 
     // Validate if password is valid.
-    if (!password || typeof password !== 'string' || password.trim() === '') 
-    {
+    if (!password || typeof password !== 'string' || password.trim() === '') {
       return res.status(400).json({ error: 'Password is required.' });
     }
 
     // Validate if user already exists.
-    const [existingUser] = await db.query(
-      'SELECT * FROM users WHERE email = ? OR username = ? LIMIT 1', 
+    const { rows: existingUser } = await db.query(
+      'SELECT * FROM users WHERE email = $1 OR username = $2 LIMIT 1',
       [email, username]
     );
 
@@ -79,13 +74,13 @@ router.post('/create', async (req, res) => {
     // Hash of the password.
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the user in database.
-    const [result] = await db.query(
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+    // Insert the user into the database.
+    const { rows: result } = await db.query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id',
       [username, email, hashedPassword]
     );
 
-    res.status(201).json({ message: 'User created successfully.', userId: result.insertId });
+    res.status(201).json({ message: 'User created successfully.', userId: result[0].id });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
