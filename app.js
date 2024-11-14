@@ -13,6 +13,11 @@ app.listen(PORT, () => {
   console.log(`Server running in port: ${PORT}`);
 });
 
+app.use(cors({
+  origin: 'https://martinrenz.github.io',  // Permite apenas esse domínio
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
 app.get('/', function (req, res) {
   res.send('Hello World!');
 });
