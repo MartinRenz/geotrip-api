@@ -109,7 +109,7 @@ router.post('/getbycoordinates', async (req, res) => {
 
 // Create point of interest endpoint.
 router.post('/', async (req, res) => {
-  const { name, description, latitude, longitude, user_id } = req.body;
+  const { name, description, latitude, longitude, user_id, color} = req.body;
 
   try {
     // Validate if name is valid.
@@ -137,6 +137,10 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'User ID is required.' });
     }
 
+    if (!color || typeof color !== 'string' || color.trim() === '') {
+      return res.status(400).json({ message: 'Color is required.' });
+    }
+
     // Validate if point already exists.
     const { rows: existingPoint } = await db.query(
       'SELECT * FROM points WHERE latitude = $1 AND longitude = $2 LIMIT 1', 
@@ -159,8 +163,8 @@ router.post('/', async (req, res) => {
 
     // Insert the new point into the database.
     const { rows } = await db.query(
-      'INSERT INTO points (name, description, latitude, longitude, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [name, description, latitude, longitude, user_id]
+      'INSERT INTO points (name, description, latitude, longitude, user_id, color) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [name, description, latitude, longitude, user_id, color]
     );
 
     res.json({ message: 'Point of interest created successfully.', point_id: rows[0].id });
