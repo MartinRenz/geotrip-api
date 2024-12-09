@@ -52,11 +52,16 @@ router.get('/getbyname/:name', async (req, res) => {
 
 // Get point of interest by coordinates endpoint.
 router.post('/getbycoordinates', async (req, res) => {
-  const { northEast, southWest } = req.body;
+  const { northEast, southWest, zoom } = req.body;
 
   // Check if values are empty.
   if (!northEast || !southWest) {
     return res.status(400).json({ message: 'northEast and southWest coordinates are required.' });
+  }
+
+    // Check if values are empty.
+  if (!zoom || typeof zoom !== 'number') {
+    return res.status(400).json({ message: 'zoom field is required.' });
   }
 
   // Validate northEast and southWest properties.
@@ -79,6 +84,9 @@ router.post('/getbycoordinates', async (req, res) => {
     return res.status(400).json({ message: 'Coordinates must be within valid ranges: latitude (-90 to 90), longitude (-180 to 180).' });
   }
 
+  // Delimit the number of points according to the zoom.
+  const limit = Math.max(0, Math.min(15, (zoom - 10) * 5));
+
   try {
     // Query to fetch points inside the provided bounding box using PostgreSQL.
     const { rows } = await db.query(
@@ -94,10 +102,11 @@ router.post('/getbycoordinates', async (req, res) => {
        WHERE 
         latitude BETWEEN $1 AND $2 
         AND longitude BETWEEN $3 AND $4
-       LIMIT 10;`,
+       LIMIT $5;`,
       [
         southWest.latitude, northEast.latitude,
-        southWest.longitude, northEast.longitude
+        southWest.longitude, northEast.longitude,
+        limit
       ]
     );
 

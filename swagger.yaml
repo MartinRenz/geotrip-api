@@ -100,6 +100,9 @@ paths:
                     longitude:
                       type: number
                       format: float
+                zoom:
+                  type: number
+                  format: integer
               required:
                 - northEast
                 - southWest
