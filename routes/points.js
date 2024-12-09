@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../config/db'); // Certifique-se de que a configuração do DB está usando o pool do PostgreSQL
+const db = require('../config/db');
 const router = express.Router();
 
 // Get point of interest by ID endpoint.

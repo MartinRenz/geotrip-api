@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const yaml = require('yaml');
 
 dotenv.config();
 
@@ -9,6 +12,11 @@ const userRoutes = require('./routes/users');
 const pointRoutes = require('./routes/points')
 
 app.use(express.json());
+
+const swaggerFile = fs.readFileSync('./swagger.yaml', 'utf8');
+const swaggerDocument = yaml.parse(swaggerFile);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = 3000;
 

@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: Geotrip API
+  version: 1.0.0
+paths:
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: Login.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: senha123
+      responses: {}
+  /users/create:
+    post:
+      tags:
+        - Users
+      summary: Create new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: John
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: senha123
+      responses: {}
+  /points/getbyid/{id}:
+    get:
+      tags:
+        - Points
+      summary: Get point of interest by ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses: {}
+  /points/getbyname/{name}:
+    get:
+      tags:
+        - Points
+      summary: Get point of interest by name.
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+          example: 1
+      responses: {}
+  /points/getbycoordinates:
+    post:
+      tags:
+        - Points
+      summary: Get point of interest by coordinates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                northEast:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                southWest:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+              required:
+                - northEast
+                - southWest
+      responses: {}
+  /points:
+    post:
+      tags:
+        - Points
+      summary: Create point of interest.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+                user_id:
+                  type: integer
+                color:
+                  type: string
+              required:
+                - name
+                - description
+                - latitude
+                - longitude
+                - user_id
+                - color
+      responses: {}
+    delete:
+      tags:
+        - Points
+      summary: Delete point of interest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                point_id:
+                  type: integer
+                  description: ID of the point to delete.
+              required:
+                - point_id
+      responses: {}

@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../config/db');  // Aqui você já tem o DB configurado com o Pool do PostgreSQL
+const db = require('../config/db');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
