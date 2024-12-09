@@ -32,6 +32,7 @@ Ensure you have the following installed on your system:
    DB_PASSWORD=yourpassword
    DB_NAME=geotrip
 
+   CORS_ORIGIN=http://localhost:3001
 4. **Running the Application:**
    ```bash
    node app.js
