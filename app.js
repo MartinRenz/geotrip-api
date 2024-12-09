@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const userRoutes = require('./routes/users');
 const pointRoutes = require('./routes/points')
@@ -14,7 +17,7 @@ app.listen(PORT, () => {
 });
 
 app.use(cors({
-  origin: 'https://martinrenz.github.io',  // Permite apenas esse domínio
+  origin: process.env.CORS_ORIGIN,
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 
