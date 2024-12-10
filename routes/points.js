@@ -2,7 +2,30 @@ const express = require('express');
 const db = require('../config/db');
 const router = express.Router();
 
-// Get point of interest by ID endpoint.
+// Get point of interest by User ID endpoint.
+router.get('/getbyuserid/:userid', async (req, res) => {
+  const { userid } = req.params; // Correctly extract `userid` from route parameters.
+
+  try {
+    // Validate if `userid` is a valid number.
+    if (!userid || isNaN(userid) || userid <= 0) {
+      return res.status(400).json({ message: 'User ID must be a positive number.' });
+    }
+
+    const { rows } = await db.query('SELECT * FROM points WHERE user_id = $1', [userid]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No points of interest found for this user.' });
+    }
+
+    // Return the points found.
+    res.json({ message: 'Points of interest found.', points: rows });
+  } catch (error) {
+    console.error(error); // Log the error for debugging purposes.
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 router.get('/getbyid/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -13,7 +36,7 @@ router.get('/getbyid/:id', async (req, res) => {
     }
 
     // Search for the point by ID using PostgreSQL parameterized query.
-    const { rows } = await db.query('SELECT * FROM points WHERE id = $1 LIMIT 1', [id]);
+    const { rows } = await db.query('SELECT * FROM points WHERE user_id = $1 LIMIT 1', [id]);
 
     // Check if the point exists.
     if (rows.length === 0) {
@@ -26,6 +49,7 @@ router.get('/getbyid/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Get point of interest by name endpoint
 router.get('/getbyname/:name', async (req, res) => {
