@@ -86,6 +86,75 @@ router.post('/create', async (req, res) => {
   }
 });
 
+router.put('/edit', async (req, res) => {
+  const { userId, updatedFields } = req.body;
+
+  if (!userId || typeof userId !== 'number') {
+    return res.status(400).json({ error: 'Valid userId is required.' });
+  }
+
+  if (!updatedFields || typeof updatedFields !== 'object') {
+    return res.status(400).json({ error: 'Updated fields must be an object.' });
+  }
+
+  let updateQuery = 'UPDATE users SET ';
+  const queryParams = [];
+  const fieldsToUpdate = [];
+
+  if (updatedFields.username) {
+    if (typeof updatedFields.username !== 'string' || updatedFields.username.trim() === '') {
+      return res.status(400).json({ error: 'Username is required.' });
+    }
+    
+    const { rows: usernameCheck } = await db.query('SELECT * FROM users WHERE username = $1 AND id != $2', [updatedFields.username, userId]);
+    if (usernameCheck.length > 0) {
+      return res.status(400).json({ error: 'Username is already in use.' });
+    }
+
+    fieldsToUpdate.push('username = $' + (fieldsToUpdate.length + 1));
+    queryParams.push(updatedFields.username);
+  }
+
+  if (updatedFields.email) {
+    if (typeof updatedFields.email !== 'string' || updatedFields.email.trim() === '') {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    const { rows: emailCheck } = await db.query('SELECT * FROM users WHERE email = $1 AND id != $2', [updatedFields.email, userId]);
+    if (emailCheck.length > 0) {
+      return res.status(400).json({ error: 'E-mail is already in use.' });
+    }
+
+    fieldsToUpdate.push('email = $' + (fieldsToUpdate.length + 1));
+    queryParams.push(updatedFields.email);
+  }
+
+  if (updatedFields.password) {
+    if (typeof updatedFields.password !== 'string' || updatedFields.password.trim() === '') {
+      return res.status(400).json({ error: 'Password is required.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(updatedFields.password, 10);
+    fieldsToUpdate.push('password = $' + (fieldsToUpdate.length + 1));
+    queryParams.push(hashedPassword);
+  }
+
+  if (fieldsToUpdate.length === 0) {
+    return res.status(400).json({ error: 'No valid fields to update.' });
+  }
+
+  updateQuery += fieldsToUpdate.join(', ') + ' WHERE id = $' + (fieldsToUpdate.length + 1);
+  queryParams.push(userId);
+
+  try {
+    const { rows: result } = await db.query(updateQuery, queryParams);
+
+    res.status(200).json({ message: 'User updated successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/getbyid/:id', async (req, res) => {
   const { id } = req.params;
 
