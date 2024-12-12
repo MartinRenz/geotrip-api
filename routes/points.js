@@ -45,7 +45,6 @@ router.get('/getbyid/:id', async (req, res) => {
 
     res.json({ message: 'Point of interest found.', point: rows[0] });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ message: error.message });
   }
 });

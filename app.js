@@ -9,7 +9,8 @@ const yaml = require('yaml');
 dotenv.config();
 
 const userRoutes = require('./routes/users');
-const pointRoutes = require('./routes/points')
+const pointRoutes = require('./routes/points');
+const userPoints = require('./routes/userPoints');
 
 app.use(express.json());
 
@@ -36,3 +37,4 @@ app.get('/', function (req, res) {
 // API Routes
 app.use('/users', userRoutes);
 app.use('/points', pointRoutes);
+app.use('/user-points', userPoints)
