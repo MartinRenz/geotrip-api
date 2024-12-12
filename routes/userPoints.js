@@ -87,24 +87,19 @@ router.get('/getCheckinInfo', async (req, res) => {
       return res.status(400).json({ error: 'Point ID is required and must be a number.' });
     }
 
-    // Validate if user_id is valid.
-    if (!user_id || isNaN(user_id)) {
-      return res.status(400).json({ error: 'User ID is required and must be a number.' });
-    }
-
     // Query to get the total interactions and whether the user has interacted.
     const { rows } = await db.query(
       `
       SELECT 
         COUNT(user_points.id) AS total_interactions,
-        MAX(CASE WHEN user_points.user_id = $2 THEN 1 ELSE 0 END) AS user_interacted
+        MAX(CASE WHEN user_points.user_id = COALESCE($2, -1) THEN 1 ELSE 0 END) AS user_interacted
       FROM 
         user_points
       WHERE 
         user_points.point_id = $1
       `,
       [point_id, user_id]
-    );
+    );    
 
     const result = rows[0];
 

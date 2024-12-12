@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS public.points (
         ON DELETE NO ACTION
 );
 
+-- Create the user-points table
+CREATE TABLE IF NOT EXISTS public.user_points (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    point_id INT NOT NULL,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_point FOREIGN KEY (point_id) REFERENCES points(id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_point UNIQUE (user_id, point_id)
+);
+
 -- Create the function update_modified_at to update the modified_at in users table
 CREATE OR REPLACE FUNCTION public.update_modified_at()
 RETURNS TRIGGER AS $$
