@@ -21,7 +21,6 @@ router.get('/getbyuserid/:userid', async (req, res) => {
     // Return the points found.
     res.json({ message: 'Points of interest found.', points: rows });
   } catch (error) {
-    console.error(error); // Log the error for debugging purposes.
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
