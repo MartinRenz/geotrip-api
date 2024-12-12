@@ -86,4 +86,27 @@ router.post('/create', async (req, res) => {
   }
 });
 
+router.get('/getbyid/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Validate if id is a valid number.
+    if (!id || isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: 'ID is required and must be a positive number.' });
+    }
+
+    // Search for the user by ID using PostgreSQL parameterized query.
+    const { rows } = await db.query('SELECT id, username, email FROM users WHERE id = $1 LIMIT 1', [id]);
+
+    // Check if the user exists.
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'User found.', user: rows[0] });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
